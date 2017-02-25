@@ -1,0 +1,32 @@
+{
+  "name": "paket-choco",
+  "version": "1.0.0",
+  "description": "[![Build Status](https://travis-ci.org/johnypony3/paket-choco.svg?branch=master)](https://travis-ci.org/johnypony3/paket-choco)",
+  "main": "index.js",
+  "dependencies": {
+    "glob": "^7.1.1",
+    "nuget-push": "^1.0.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/johnypony3/paket-choco.git"
+  },
+  "author": "johnypony3",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/johnypony3/paket-choco/issues"
+  },
+  "homepage": "https://github.com/johnypony3/paket-choco#readme",
+  "keywords": [
+    "choco",
+    "chocolatey",
+    "nuget",
+    "paket",
+    "python",
+    "nodejs"
+  ]
+}

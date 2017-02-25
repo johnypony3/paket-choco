@@ -23,6 +23,7 @@
 *.rar
 *.tar
 *.zip
+*.nupkg
 
 # Logs and databases #
 ######################
@@ -39,3 +40,8 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+/packages
+/node_modules
+
+*.targets
