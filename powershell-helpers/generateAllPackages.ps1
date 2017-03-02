@@ -2,15 +2,59 @@
 $paketInfos = Invoke-RestMethod -Uri 'https://api.github.com/repos/fsprojects/Paket/releases'
 $paketRepoInfo = Invoke-RestMethod -Uri $paketRepo
 $packageOutputPath = Join-Path -Path $PSScriptRoot -ChildPath 'packages'
-$nuspecTemplatePath = Join-Path -Path $PSScriptRoot -ChildPath paket.nuspec.template
+mkdir $packageOutputPath
+
+$nuspecTemplatePath = Join-Path -Path $PSScriptRoot -ChildPath paket.template.nuspec
 $nuspecPath = Join-Path -Path $PSScriptRoot -ChildPath paket.nuspec
 $assetPath = Join-Path -Path $PSScriptRoot -ChildPath payload
 
+choco apiKey -k $ENV:CHOCO_KEY -source https://chocolatey.org/
+
+function CheckIfUploadedToChoco {
+  param([string]$chocoUrl)
+
+  Try {
+    $statusCode = wget $chocoUrl | % {$_.StatusCode}
+    Write-Host "$statusCode for $chocoUrl"
+    if ($statusCode -eq '200') {
+      return $true
+    }
+  } Catch {
+    Write-Host "$statusCode for $chocoUrl"
+    return $false
+  }
+}
+
 $paketInfos | % {
+    $skip = $false
+    #$skip = $_.tag_name -like '*beta*'
+    #$skip = $skip -or $_.tag_name -like '*3.36.0*'
+
+    if ($skip) {
+      Write-Host "skipping version:"$_.tag_name
+      return
+    }
+
+    $version = $_.tag_name #-replace '-', '.022620174-'
+    Write-Host "working on version:"$version
+
+    $packageName = "Paket.$version.nupkg"
+    Write-Host $packageName
+
+    $chocoUrl = "https://packages.chocolatey.org/$packageName"
+    Write-Host $chocoUrl
+
+    if (CheckIfUploadedToChoco -chocoUrl $chocoUrl) {
+      Write-Host "package exists, skipping:"$packageName
+      return;
+    } else {
+      Write-Host "package does not exist:"$packageName
+    }
+
     [xml]$nuspec = Get-Content $nuspecTemplatePath
-    $nuspec.package.metadata.id = $paketRepoInfo.name
-    $nuspec.package.metadata.title = $paketRepoInfo.full_name
-    $nuspec.package.metadata.version = $_.tag_name
+    $nuspec.package.metadata.id = 'paket'
+    $nuspec.package.metadata.title = 'paket'
+    $nuspec.package.metadata.version = $version
     $nuspec.package.metadata.authors = $paketRepoInfo.owner.login
     $nuspec.package.metadata.projectUrl = $paketRepoInfo.homepage
     $nuspec.package.metadata.description = $paketRepoInfo.description
@@ -21,25 +65,11 @@ $paketInfos | % {
     $nuspec.package.metadata.bugTrackerUrl = $paketRepo
     $nuspec.package.metadata.packageSourceUrl = $paketRepo
 
-    Write-Host "working on version:"$_.tag_name
-
-    Remove-Item $nuspecPath -Force -ErrorAction SilentlyContinue
-    Remove-Item $assetPath\* -recurse -force -ErrorAction SilentlyContinue
-
-    #$_.assets | % {
-
-    foreach ($asset in $_.assets) {
-        if ($asset.name -eq 'paket.bootstrapper.exe') {
-            Write-Host "skipping download of"$asset.name
-            continue
-        }
-
-        $fileNameFull = Join-Path -Path $assetPath -ChildPath $asset.name
-        Write-Host "downloading"$asset.browser_download_url"to $fileNameFull"
-        Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $fileNameFull
-    }
-
     $nuspec.Save($nuspecPath)
 
     choco pack $nuspecPath --outputdirectory $packageOutputPath
+}
+
+Get-ChildItem $packageOutputPath -Filter *.nupkg | % {
+  choco push $_.FullName
 }

@@ -30,24 +30,19 @@ if(r.ok):
         print('https://packages.chocolatey.org/' + packageShortName)
         ret = requests.head('https://packages.chocolatey.org/' + packageShortName)
 
-        if ret.status_code == 200:
-            print '>> >> skipping package: already been uploaded to chocolatey '
-            continue
+        # if ret.status_code == 200:
+        # print '>> >> skipping package: already been uploaded to chocolatey '
+        # continue
 
-        """
-        if "beta" not in packageShortName:
-            print '>> >> skipping package: not beta'
+        if "beta" in packageShortName:
+            print '>> >> skipping package: beta'
             continue
-        """
 
         if not os.path.exists(packageDir):
             os.makedirs(packageDir)
 
         if not os.path.exists(unzipDir):
             os.makedirs(unzipDir)
-
-        if not os.path.exists(payloadDir):
-            os.makedirs(payloadDir)
 
         print '-- downloading: ', nugetFileName
         urllib.urlretrieve(nugetDownloadUrl + release['tag_name'], nugetFileName + ".zip")
@@ -72,7 +67,7 @@ if(r.ok):
         files = etree.Element("files")
 
         fileEl = etree.Element("file")
-        fileEl.set('src', '.\\tools\\*.ps1')
+        fileEl.set('src', '..\\..\\tools\\**')
         fileEl.set('target', 'tools')
         files.append(fileEl)
 
@@ -111,6 +106,11 @@ if(r.ok):
         tree.write(unzipDir + 'paket.nuspec',
                    encoding="utf-8",
                    xml_declaration=True)
+
+        os.rename(unzipDir + 'paket.nuspec', packageDir + 'paket.nuspec')
+        os.popen('rm -rf ' + unzipDir)
+        os.popen('rm -rf ' + unzipDir)
+        continue
 
         print '-- moving payload and tools'
 

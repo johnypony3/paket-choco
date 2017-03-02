@@ -1,8 +1,11 @@
 var push = require('nuget-push');
 var glob = require("glob");
 var fs = require('fs');
+var Ng = require('nuget-pckg'),
+path = require('path');
 
-glob("./packages/**/*.nupkg", function(er, files) {
+
+glob("./packages/**/*.nuspec", function(er, files) {
     files.forEach(function(file) {
         uploadPackage(file, function(file) {
             console.log(file);

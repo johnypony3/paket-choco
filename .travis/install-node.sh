@@ -10,3 +10,4 @@ npm install
 
 npm install glob -S
 npm install nuget-push -S
+npm install nuget-pckg -S

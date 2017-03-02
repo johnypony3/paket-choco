@@ -1,0 +1,9 @@
+version: 1.0.{build}
+build_script:
+  - ps: 'powershell-helpers/generateAllPackages.ps1'
+
+artifacts:
+  - path: '**\*.nupkg'
+    name: nupkg
+  - path: '**\*.nuspec'
+    name: nuspec
