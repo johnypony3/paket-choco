@@ -1,6 +1,8 @@
 $ErrorActionPreference = 'Stop';
 
 $versionPath = Join-Path -Path $PSScriptRoot -ChildPath .version
+Write-Host $versionPath
+
 $ogversion = Get-Content $versionPath
 
 $paketInfo = Invoke-RestMethod -Uri 'https://api.github.com/repos/fsprojects/Paket/releases'
