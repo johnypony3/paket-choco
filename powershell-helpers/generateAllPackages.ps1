@@ -71,7 +71,7 @@ $paketInfos | % {
 
     $nuspec.Save($nuspecPath)
 
-    $ogversion | Out-File ..\tools\.version
+    $ogversion | Out-File .\tools\.version
 
     choco pack $nuspecPath --outputdirectory $packageOutputPath
 }
