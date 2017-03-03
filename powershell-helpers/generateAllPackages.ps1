@@ -38,7 +38,7 @@ $paketInfos | % {
       return
     }
 
-    $version = $ogversion -replace '-', '.03022017-'
+    $version = $ogversion -replace '-', '.03032017-'
     Write-Host "working on version:"$version
 
     $packageName = "Paket.$version.nupkg"
@@ -49,14 +49,14 @@ $paketInfos | % {
 
     if (CheckIfUploadedToChoco -chocoUrl $chocoUrl) {
       Write-Host "package exists, skipping:"$packageName
-      return;
+      #return;
     } else {
       Write-Host "package does not exist:"$packageName
     }
 
     [xml]$nuspec = Get-Content $nuspecTemplatePath
     $nuspec.package.metadata.id = 'paket'
-    $nuspec.package.metadata.title = 'paket'
+    $nuspec.package.metadata.title = 'Paket'
     $nuspec.package.metadata.version = $version
     $nuspec.package.metadata.authors = $paketRepoInfo.owner.login
     $nuspec.package.metadata.projectUrl = $paketRepoInfo.homepage
