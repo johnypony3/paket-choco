@@ -49,7 +49,7 @@ $paketInfos | % {
 
     if (CheckIfUploadedToChoco -chocoUrl $chocoUrl) {
       Write-Host "package exists, skipping:"$packageName
-      #return;
+      return;
     } else {
       Write-Host "package does not exist:"$packageName
     }
