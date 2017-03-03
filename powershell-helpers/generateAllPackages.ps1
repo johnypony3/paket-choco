@@ -31,7 +31,7 @@ $paketInfos | % {
 
     $skip = $false
     #$skip = $ogversion -notlike '*beta*'
-    $skip = $skip -or $ogversion -notlike '*3.36.0*'
+    #$skip = $skip -or $ogversion -notlike '*3.36.0*'
 
     if ($skip) {
       Write-Host "skipping version:"$ogversion
