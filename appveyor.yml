@@ -7,6 +7,8 @@ artifacts:
     name: nupkg
   - path: '**\*.nuspec'
     name: nuspec
+  - path: '**\.version'
+    name: version
 
 notifications:
   - provider: Slack
