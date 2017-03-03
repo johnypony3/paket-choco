@@ -26,16 +26,18 @@ function CheckIfUploadedToChoco {
 }
 
 $paketInfos | % {
+    $ogversion = $_.tag_name
+
     $skip = $false
-    #$skip = $_.tag_name -like '*beta*'
-    #$skip = $skip -or $_.tag_name -like '*3.36.0*'
+    $skip = $ogversion -notlike '*beta*'
+    #$skip = $skip -or $ogversion -like '*3.36.0*'
 
     if ($skip) {
-      Write-Host "skipping version:"$_.tag_name
+      Write-Host "skipping version:"$ogversion
       return
     }
 
-    $version = $_.tag_name #-replace '-', '.022620174-'
+    $version = $ogversion -replace '-', '.03022017-'
     Write-Host "working on version:"$version
 
     $packageName = "Paket.$version.nupkg"
@@ -65,7 +67,11 @@ $paketInfos | % {
     $nuspec.package.metadata.bugTrackerUrl = $paketRepo
     $nuspec.package.metadata.packageSourceUrl = $paketRepo
 
+    $nuspec.package.metadata.tags = $ogversion
+
     $nuspec.Save($nuspecPath)
+
+    $ogversion | Out-File ..\tools\.version
 
     choco pack $nuspecPath --outputdirectory $packageOutputPath
 }

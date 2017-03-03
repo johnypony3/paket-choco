@@ -8,5 +8,5 @@
 
 1. make get call to github api for the repo
 2. uses template for metadata and pulls data from github call above
-3. package looks at the version of itself and pulls matching artifacts, as versions match 1:1
+3. package looks at the .version file and pulls matching artifacts
 4. pack / push

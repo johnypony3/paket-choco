@@ -1,7 +1,8 @@
 $ErrorActionPreference = 'Stop';
 
+$ogversion = Get-Content .version
 $paketInfo = Invoke-RestMethod -Uri 'https://api.github.com/repos/fsprojects/Paket/releases'
-$repoInfo = $paketInfo | where { $_.tag_name -eq $ENV:chocolateyPackageVersion }
+$repoInfo = $paketInfo | where { $_.tag_name -eq $ogversion }
 
 $toolsDir = Join-Path -Path $ENV:chocolateyPackageFolder -ChildPath 'tools'
 
