@@ -6,6 +6,7 @@ mkdir $packageOutputPath
 
 $nuspecTemplatePath = Join-Path -Path $PSScriptRoot -ChildPath paket.template.nuspec
 $nuspecPath = Join-Path -Path $PSScriptRoot -ChildPath paket.nuspec
+$versionPath = Join-Path -Path $PSScriptRoot -ChildPath .version
 $assetPath = Join-Path -Path $PSScriptRoot -ChildPath payload
 
 choco apiKey -k $ENV:CHOCO_KEY -source https://chocolatey.org/
@@ -71,7 +72,7 @@ $paketInfos | % {
 
     $nuspec.Save($nuspecPath)
 
-    $ogversion | Out-File .version
+    $ogversion | Out-File $versionPath
 
     choco pack $nuspecPath --outputdirectory $packageOutputPath
 }
