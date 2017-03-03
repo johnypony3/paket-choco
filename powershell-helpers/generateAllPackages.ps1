@@ -67,9 +67,6 @@ $paketInfos | % {
     $nuspec.package.metadata.mailingListUrl = $paketRepo
     $nuspec.package.metadata.bugTrackerUrl = $paketRepo
     $nuspec.package.metadata.packageSourceUrl = $paketRepo
-
-    $nuspec.package.metadata.tags = $ogversion
-
     $nuspec.Save($nuspecPath)
 
     $ogversion | Out-File $versionPath
