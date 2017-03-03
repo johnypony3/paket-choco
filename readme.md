@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/johnypony3/paket-choco.svg?branch=master)](https://travis-ci.org/johnypony3/paket-choco)
+[![Build status](https://ci.appveyor.com/api/projects/status/2xgqtr4xtio1x1ft/branch/master?svg=true)](https://ci.appveyor.com/project/johnypony3/paket-choco/branch/master)
 
 # purpose:
 
