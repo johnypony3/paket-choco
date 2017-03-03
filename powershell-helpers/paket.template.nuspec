@@ -21,5 +21,6 @@
     </metadata>
     <files>
         <file src="..\tools\**" target="tools"/>
+        <file src=".\.version" target="tools"/>
     </files>
 </package>
