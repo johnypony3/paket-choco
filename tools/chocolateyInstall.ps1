@@ -1,7 +1,6 @@
 $ErrorActionPreference = 'Stop';
 
 $versionPath = Join-Path -Path $PSScriptRoot -ChildPath .version
-Write-Host $versionPath
 
 $ogversion = Get-Content $versionPath
 
