@@ -7,3 +7,11 @@ artifacts:
     name: nupkg
   - path: '**\*.nuspec'
     name: nuspec
+
+notifications:
+  - provider: Slack
+    incoming_webhook: https://hooks.slack.com/services/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
+    channel: Build
+    on_build_success: true
+    on_build_failure: true
+    on_build_status_changed: false
