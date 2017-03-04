@@ -61,7 +61,6 @@ $paketInfos | % {
     }
 
     Remove-Item "$packagePayloadPath/*" -recurse
-    $paketInfos
     $repoInfo = $paketInfos | where { $_.tag_name -eq $ogversion }
 
     $repoInfo.assets | % {
