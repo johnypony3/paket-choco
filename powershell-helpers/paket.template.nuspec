@@ -20,6 +20,7 @@
         <title>paket</title>
     </metadata>
     <files>
+        <file src="..\payload\**" target="payload"/>
         <file src="..\tools\**" target="tools"/>
         <file src=".version" target="tools"/>
     </files>

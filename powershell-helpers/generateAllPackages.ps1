@@ -1,8 +1,12 @@
 ﻿$paketRepo = 'https://api.github.com/repos/johnypony3/Paket'
 $paketInfos = Invoke-RestMethod -Uri 'https://api.github.com/repos/fsprojects/Paket/releases'
 $paketRepoInfo = Invoke-RestMethod -Uri $paketRepo
+
 $packageOutputPath = Join-Path -Path $PSScriptRoot -ChildPath 'packages'
 mkdir $packageOutputPath
+
+$packagePayloadPath = Join-Path -Path $PSScriptRoot -ChildPath '..\payload'
+mkdir $packagePayloadPath
 
 $nuspecTemplatePath = Join-Path -Path $PSScriptRoot -ChildPath paket.template.nuspec
 $nuspecPath = Join-Path -Path $PSScriptRoot -ChildPath paket.nuspec
@@ -56,6 +60,15 @@ $paketInfos | % {
       Write-Host "package does not exist:"$packageName
     }
 
+    Remove-Item "$packagePayloadPath/*" -recurse
+    $repoInfo = $paketInfo | where { $_.tag_name -eq $ogversion }
+
+    $repoInfo.assets | % {
+        $fileNameFull = Join-Path -Path $packagePayloadPath -ChildPath $_.name
+        Invoke-WebRequest -FileFullPath $fileNameFull -Url $_.browser_download_url
+        Write-Host "  -> downloaded $_.name"
+    }
+
     [xml]$nuspec = Get-Content $nuspecTemplatePath
     $nuspec.package.metadata.id = 'paket'
     $nuspec.package.metadata.title = 'Paket'
@@ -77,5 +90,5 @@ $paketInfos | % {
 }
 
 Get-ChildItem $packageOutputPath -Filter *.nupkg | % {
-  choco push $_.FullName
+  #choco push $_.FullName
 }
