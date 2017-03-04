@@ -30,7 +30,7 @@ $paketInfos | % {
     $ogversion = $_.tag_name
 
     $skip = $false
-    $skip = $ogversion
+    $skip = !$ogversion
 
     #$skip = $ogversion -notlike '*beta*'
     $skip = $skip -or $ogversion -notlike '*3.36.0*'
