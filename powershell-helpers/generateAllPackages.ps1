@@ -61,7 +61,7 @@ $paketInfos | % {
     }
 
     Remove-Item "$packagePayloadPath/*" -recurse
-    $repoInfo = $paketInfo | where { $_.tag_name -eq $ogversion }
+    $repoInfo = $paketInfos | where { $_.tag_name -eq $ogversion }
 
     $repoInfo.assets | % {
         $fileNameFull = Join-Path -Path $packagePayloadPath -ChildPath $_.name
