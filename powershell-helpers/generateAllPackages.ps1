@@ -38,7 +38,7 @@ $paketInfos | % {
       return
     }
 
-    $version = $ogversion -replace '-', '.03032017-'
+    $version = $ogversion# -replace '-', '.03032017-'
     Write-Host "working on version:"$version
 
     $packageName = "Paket.$version.nupkg"
