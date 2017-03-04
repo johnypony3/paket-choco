@@ -31,9 +31,9 @@ $paketInfos | % {
 
     $skip = $false
     $skip = $ogversion
-    
+
     #$skip = $ogversion -notlike '*beta*'
-    #$skip = $skip -or $ogversion -notlike '*3.36.0*'
+    $skip = $skip -or $ogversion -notlike '*3.36.0*'
 
     if ($skip) {
       Write-Host "skipping version:"$ogversion
@@ -51,7 +51,7 @@ $paketInfos | % {
 
     if (CheckIfUploadedToChoco -chocoUrl $chocoUrl) {
       Write-Host "package exists, skipping:"$packageName
-      return;
+      #return;
     } else {
       Write-Host "package does not exist:"$packageName
     }
