@@ -2,6 +2,10 @@ version: 1.0.{build}
 build_script:
   - ps: 'powershell-helpers/generateAllPackages.ps1'
 
+branches:
+  only:
+  - master
+
 artifacts:
   - path: '**\*.nupkg'
     name: nupkg
