@@ -16,6 +16,7 @@ $verificationPath = Join-Path -Path $PSScriptRoot -ChildPath ..\tools\VERIFICATI
 
 $versionPath = Join-Path -Path $PSScriptRoot -ChildPath .version
 $assetPath = Join-Path -Path $PSScriptRoot -ChildPath payload
+$checksumType = "MD5"
 
 choco apiKey -k $ENV:CHOCO_KEY -source https://chocolatey.org/
 
@@ -77,6 +78,14 @@ function CheckIfUploadedToChoco {
   }
 }
 
+function GetHash{
+  param([string]$filePath)
+
+  $md5 = New-Object -TypeName System.Security.Cryptography.MD5CryptoServiceProvider
+  $hash = [System.BitConverter]::ToString($md5.ComputeHash([System.IO.File]::ReadAllBytes($filePath)))
+  return $hash
+}
+
 $paketInfos | % {
     $ogversion = $_.tag_name
     $downloadUrl = $_.html_url
@@ -117,11 +126,19 @@ $paketInfos | % {
     Remove-Item "$packagePayloadPath/*" -recurse
     $repoInfo = $paketInfos | where { $_.tag_name -eq $ogversion }
 
+    Copy-Item $verificationTemplatePath $verificationPath
+
     $repoInfo.assets | % {
         $fileNameFull = Join-Path -Path $packagePayloadPath -ChildPath $_.name
         Invoke-WebRequest -OutFile $fileNameFull -Uri $_.browser_download_url
         Write-Host "  -> downloaded $_.name"
+        $fileHash = GetHash $fileNameFull
+        $fileHashInfo = "`n`tfile: $_.name`n`tchecksum type: $checksumType`n`tchecksum: $fileHash`n"
+        Write-Host "  -> $fileHashInfo"
+        Add-Content $verificationPath $fileHashInfo
     }
+
+    Add-Content $verificationPath "The download url for this packages release is <$downloadUrl>"
 
     [xml]$nuspec = Get-Content $nuspecTemplatePath
     $nuspec.package.metadata.id = 'paket'
@@ -138,8 +155,6 @@ $paketInfos | % {
     $nuspec.package.metadata.packageSourceUrl = $paketRepo
     $nuspec.Save($nuspecPath)
 
-    Copy-Item $verificationTemplatePath $verificationPath
-    Add-Content $verificationPath "The download url for this packages release is <$downloadUrl>"
     BuildInfoFileGenerator $ogversion
 
     choco pack $nuspecPath --outputdirectory $packageOutputPath
