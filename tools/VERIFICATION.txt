@@ -3,7 +3,7 @@ Verification is intended to assist the Chocolatey moderators and community
 in verifying that this package's contents are trustworthy.
 
 The embedded software have been downloaded from the listed download
-location on <https://api.github.com/repos/fsprojects/Paket/releases>
+location on <https://github.com/fsprojects/Paket/releases>
 and can be verified by doing the following:
 
 1. Packaged assets are downloaded from the github api call above, for the
