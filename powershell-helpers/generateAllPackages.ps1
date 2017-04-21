@@ -1,4 +1,4 @@
-$paketRepo = 'https://github.com/fsprojects/Paket'
+$paketRepo = 'https://api.github.com/repos/fsprojects/Paket'
 $paketInfos = Invoke-RestMethod -Uri 'https://api.github.com/repos/fsprojects/Paket/releases'
 $paketRepoInfo = Invoke-RestMethod -Uri $paketRepo
 
@@ -18,6 +18,8 @@ $versionPath = Join-Path -Path $PSScriptRoot -ChildPath .version
 $assetPath = Join-Path -Path $PSScriptRoot -ChildPath payload
 
 choco apiKey -k $ENV:CHOCO_KEY -source https://chocolatey.org/
+
+$push = false
 
 function BuildInfoFileGenerator {
   param([string]$ogVersion)
@@ -141,6 +143,11 @@ $paketInfos | % {
     BuildInfoFileGenerator $ogversion
 
     choco pack $nuspecPath --outputdirectory $packageOutputPath
+}
+
+if (!($push)){
+  Write-Host "not pushing any packages"
+  return 0;
 }
 
 Get-ChildItem $packageOutputPath -Filter *.nupkg | % {
