@@ -19,6 +19,47 @@ $assetPath = Join-Path -Path $PSScriptRoot -ChildPath payload
 
 choco apiKey -k $ENV:CHOCO_KEY -source https://chocolatey.org/
 
+function BuildInfoFileGenerator {
+  param([string]$ogVersion)
+
+  $hash = @{}
+  $hash.Add("APPVEYOR", $ENV:APPVEYOR)
+  $hash.Add("CI", $ENV:CI)
+  $hash.Add("APPVEYOR_API_URL", $ENV:APPVEYOR_API_URL)
+  $hash.Add("APPVEYOR_ACCOUNT_NAME", $ENV:APPVEYOR_ACCOUNT_NAME)
+  $hash.Add("APPVEYOR_PROJECT_ID", $ENV:APPVEYOR_PROJECT_ID)
+  $hash.Add("APPVEYOR_PROJECT_NAME", $ENV:APPVEYOR_PROJECT_NAME)
+  $hash.Add("APPVEYOR_PROJECT_SLUG", $ENV:APPVEYOR_PROJECT_SLUG)
+  $hash.Add("APPVEYOR_BUILD_FOLDER", $ENV:APPVEYOR_BUILD_FOLDER)
+  $hash.Add("APPVEYOR_BUILD_ID", $ENV:APPVEYOR_BUILD_ID)
+  $hash.Add("APPVEYOR_BUILD_NUMBER", $ENV:APPVEYOR_BUILD_NUMBER)
+  $hash.Add("APPVEYOR_BUILD_VERSION", $ENV:APPVEYOR_BUILD_VERSION)
+  $hash.Add("APPVEYOR_BUILD_WORKER_IMAGE", $ENV:APPVEYOR_BUILD_WORKER_IMAGE)
+  $hash.Add("APPVEYOR_PULL_REQUEST_NUMBER", $ENV:APPVEYOR_PULL_REQUEST_NUMBER)
+  $hash.Add("APPVEYOR_PULL_REQUEST_TITLE", $ENV:APPVEYOR_PULL_REQUEST_TITLE)
+  $hash.Add("APPVEYOR_JOB_ID", $ENV:APPVEYOR_JOB_ID)
+  $hash.Add("APPVEYOR_JOB_NAME", $ENV:APPVEYOR_JOB_NAME)
+  $hash.Add("APPVEYOR_JOB_NUMBER", $ENV:APPVEYOR_JOB_NUMBER)
+  $hash.Add("APPVEYOR_REPO_PROVIDER", $ENV:APPVEYOR_REPO_PROVIDER)
+  $hash.Add("APPVEYOR_REPO_SCM", $ENV:APPVEYOR_REPO_SCM)
+  $hash.Add("APPVEYOR_REPO_NAME", $ENV:APPVEYOR_REPO_NAME)
+  $hash.Add("APPVEYOR_REPO_BRANCH", $ENV:APPVEYOR_REPO_BRANCH)
+  $hash.Add("APPVEYOR_REPO_TAG", $ENV:APPVEYOR_REPO_TAG)
+  $hash.Add("APPVEYOR_REPO_TAG_NAME", $ENV:APPVEYOR_REPO_TAG_NAME)
+  $hash.Add("APPVEYOR_REPO_COMMIT", $ENV:APPVEYOR_REPO_COMMIT)
+  $hash.Add("APPVEYOR_REPO_COMMIT_AUTHOR", $ENV:APPVEYOR_REPO_COMMIT_AUTHOR)
+  $hash.Add("APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL", $ENV:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL)
+  $hash.Add("APPVEYOR_REPO_COMMIT_TIMESTAMP", $ENV:APPVEYOR_REPO_COMMIT_TIMESTAMP)
+  $hash.Add("APPVEYOR_REPO_COMMIT_MESSAGE", $ENV:APPVEYOR_REPO_COMMIT_MESSAGE)
+  $hash.Add("APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED", $ENV:APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED)
+  $hash.Add("APPVEYOR_SCHEDULED_BUILD", $ENV:APPVEYOR_SCHEDULED_BUILD)
+  $hash.Add("PLATFORM", $ENV:PLATFORM)
+  $hash.Add("VERSION", $ENV:PLATFORM)
+  $hash.Add("CONFIGURATION", $ogVersion)
+
+  $hash | ConvertTo-Json | Out-File $versionPath
+}
+
 function CheckIfUploadedToChoco {
   param([string]$chocoUrl)
 
@@ -95,10 +136,9 @@ $paketInfos | % {
     $nuspec.package.metadata.packageSourceUrl = $paketRepo
     $nuspec.Save($nuspecPath)
 
-    $ogversion | Out-File $versionPath
-
     Copy-Item $verificationTemplatePath $verificationPath
     Add-Content $verificationPath "The download url for this packages release is <$downloadUrl>"
+    BuildInfoFileGenerator $ogversion
 
     choco pack $nuspecPath --outputdirectory $packageOutputPath
 }

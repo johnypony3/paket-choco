@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
     <metadata>
-        <id>Paket</id>
+        <id>paket</id>
         <version>3.36.0</version>
         <authors>Paket team</authors>
         <licenseUrl>http://fsprojects.github.io/Paket/license.html</licenseUrl>
@@ -17,7 +17,7 @@
         <docsUrl>http://fsprojects.github.com/Paket</docsUrl>
         <mailingListUrl>http://fsprojects.github.com/Paket</mailingListUrl>
         <bugTrackerUrl>http://fsprojects.github.com/Paket</bugTrackerUrl>
-        <title>paket</title>
+        <title>Paket</title>
     </metadata>
     <files>
         <file src="..\payload\**" target="payload"/>
