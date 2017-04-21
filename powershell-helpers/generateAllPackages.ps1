@@ -76,7 +76,7 @@ $paketInfos | % {
 
     $repoInfo.assets | % {
         $fileNameFull = Join-Path -Path $packagePayloadPath -ChildPath $_.name
-        #Invoke-WebRequest -OutFile $fileNameFull -Uri $_.browser_download_url
+        Invoke-WebRequest -OutFile $fileNameFull -Uri $_.browser_download_url
         Write-Host "  -> downloaded $_.name"
     }
 
