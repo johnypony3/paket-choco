@@ -9,7 +9,11 @@ $packagePayloadPath = Join-Path -Path $PSScriptRoot -ChildPath '..\payload'
 mkdir $packagePayloadPath
 
 $nuspecTemplatePath = Join-Path -Path $PSScriptRoot -ChildPath paket.template.nuspec
+$verificationTemplatePath = Join-Path -Path $PSScriptRoot -ChildPath VERIFICATION.template.txt
+
 $nuspecPath = Join-Path -Path $PSScriptRoot -ChildPath paket.nuspec
+$verificationPath = Join-Path -Path $PSScriptRoot -ChildPath ..\tools\VERIFICATION.txt
+
 $versionPath = Join-Path -Path $PSScriptRoot -ChildPath .version
 $assetPath = Join-Path -Path $PSScriptRoot -ChildPath payload
 
@@ -32,6 +36,7 @@ function CheckIfUploadedToChoco {
 
 $paketInfos | % {
     $ogversion = $_.tag_name
+    $downloadUrl = $_.html_url
 
     $skip = $false
     $skip = !$ogversion
@@ -71,7 +76,7 @@ $paketInfos | % {
 
     $repoInfo.assets | % {
         $fileNameFull = Join-Path -Path $packagePayloadPath -ChildPath $_.name
-        Invoke-WebRequest -OutFile $fileNameFull -Uri $_.browser_download_url
+        #Invoke-WebRequest -OutFile $fileNameFull -Uri $_.browser_download_url
         Write-Host "  -> downloaded $_.name"
     }
 
@@ -91,6 +96,9 @@ $paketInfos | % {
     $nuspec.Save($nuspecPath)
 
     $ogversion | Out-File $versionPath
+
+    Copy-Item $verificationTemplatePath $verificationPath
+    Add-Content $verificationPath "The download url for this packages release is <$downloadUrl>"
 
     choco pack $nuspecPath --outputdirectory $packageOutputPath
 }

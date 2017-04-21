@@ -6,7 +6,7 @@ The embedded software have been downloaded from the listed download
 location on <https://github.com/fsprojects/Paket/releases>
 and can be verified by doing the following:
 
-1. Packaged assets are downloaded from the github api call above, for the
+1. Packaged assets are downloaded from the github release url above, for the
   specific release which matches the package version.
 2. Install/Uninstall scripts add/remove a machine level environment parameter
   using chocolatey `Install-ChocolateyEnvironmentVariable` method.
