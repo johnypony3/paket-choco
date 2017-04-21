@@ -1,4 +1,4 @@
-﻿$paketRepo = 'https://api.github.com/repos/johnypony3/Paket'
+$paketRepo = 'https://github.com/fsprojects/Paket'
 $paketInfos = Invoke-RestMethod -Uri 'https://api.github.com/repos/fsprojects/Paket/releases'
 $paketRepoInfo = Invoke-RestMethod -Uri $paketRepo
 
@@ -9,7 +9,11 @@ $packagePayloadPath = Join-Path -Path $PSScriptRoot -ChildPath '..\payload'
 mkdir $packagePayloadPath
 
 $nuspecTemplatePath = Join-Path -Path $PSScriptRoot -ChildPath paket.template.nuspec
+$verificationTemplatePath = Join-Path -Path $PSScriptRoot -ChildPath VERIFICATION.template.txt
+
 $nuspecPath = Join-Path -Path $PSScriptRoot -ChildPath paket.nuspec
+$verificationPath = Join-Path -Path $PSScriptRoot -ChildPath ..\tools\VERIFICATION.txt
+
 $versionPath = Join-Path -Path $PSScriptRoot -ChildPath .version
 $assetPath = Join-Path -Path $PSScriptRoot -ChildPath payload
 
@@ -32,12 +36,15 @@ function CheckIfUploadedToChoco {
 
 $paketInfos | % {
     $ogversion = $_.tag_name
+    $downloadUrl = $_.html_url
 
     $skip = $false
     $skip = !$ogversion
 
+    $overrideExistingPackageCheck = $true
+
     #$skip = $ogversion -notlike '*beta*'
-    #$skip = $skip -or $ogversion -notlike '*3.36.0*'
+    $skip = $skip -or $ogversion -notlike '*4.0.7*'
 
     if ($skip) {
       Write-Host "skipping version:"$ogversion
@@ -54,8 +61,12 @@ $paketInfos | % {
     Write-Host $chocoUrl
 
     if (CheckIfUploadedToChoco -chocoUrl $chocoUrl) {
-      Write-Host "package exists, skipping:"$packageName
-      return;
+      if (!($overrideExistingPackageCheck)){
+        Write-Host "package exists, skipping:"$packageName
+        return;
+      }
+
+      Write-Host "package exists, continuing:"$packageName
     } else {
       Write-Host "package does not exist:"$packageName
     }
@@ -85,6 +96,9 @@ $paketInfos | % {
     $nuspec.Save($nuspecPath)
 
     $ogversion | Out-File $versionPath
+
+    Copy-Item $verificationTemplatePath $verificationPath
+    Add-Content $verificationPath "The download url for this packages release is <$downloadUrl>"
 
     choco pack $nuspecPath --outputdirectory $packageOutputPath
 }
