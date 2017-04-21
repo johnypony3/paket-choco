@@ -19,7 +19,9 @@ $assetPath = Join-Path -Path $PSScriptRoot -ChildPath payload
 
 choco apiKey -k $ENV:CHOCO_KEY -source https://chocolatey.org/
 
-$push = false
+$push = $true
+$overrideExistingPackageCheck = $true
+$skip = $false
 
 function BuildInfoFileGenerator {
   param([string]$ogVersion)
@@ -81,13 +83,8 @@ $paketInfos | % {
     $ogversion = $_.tag_name
     $downloadUrl = $_.html_url
 
-    $skip = $false
-    $skip = !$ogversion
-
-    $overrideExistingPackageCheck = $true
-
     #$skip = $ogversion -notlike '*beta*'
-    $skip = $skip -or $ogversion -notlike '*4.0.7*'
+    #$skip = $skip -or $ogversion -notlike '*4.0.7*'
 
     if ($skip) {
       Write-Host "skipping version:"$ogversion
