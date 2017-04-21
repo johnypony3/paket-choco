@@ -1,4 +1,4 @@
-﻿$paketRepo = 'https://api.github.com/repos/johnypony3/Paket'
+$paketRepo = 'https://github.com/fsprojects/Paket'
 $paketInfos = Invoke-RestMethod -Uri 'https://api.github.com/repos/fsprojects/Paket/releases'
 $paketRepoInfo = Invoke-RestMethod -Uri $paketRepo
 
@@ -37,7 +37,7 @@ $paketInfos | % {
     $skip = !$ogversion
 
     #$skip = $ogversion -notlike '*beta*'
-    #$skip = $skip -or $ogversion -notlike '*3.36.0*'
+    $skip = $skip -or $ogversion -notlike '*4.0.7*'
 
     if ($skip) {
       Write-Host "skipping version:"$ogversion
