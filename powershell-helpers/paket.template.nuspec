@@ -13,10 +13,9 @@
             https://github.com/fsprojects/Paket/pull/2147 BUGFIX: Add a workaround for https://github.com/fsprojects/Paket/issues/2145 BUGFIX: Ignore unknown frameworks - https://github.com/fsprojects/Paket/pull/2132 COSMETICS: Do not spam "unlisted" -
             https://github.com/fsprojects/Paket/issues/2149 USABILITY: Link to documentation on how to resolve a conflict - https://github.com/fsprojects/Paket/pull/2155</releaseNotes>
         <tags>nuget bundler F# admin</tags>
-        <packageSourceUrl>http://fsprojects.github.com/Paket</packageSourceUrl>
+        <packageSourceUrl>https://github.com/johnypony3/paket-choco</packageSourceUrl>
         <docsUrl>http://fsprojects.github.com/Paket</docsUrl>
-        <mailingListUrl>http://fsprojects.github.com/Paket</mailingListUrl>
-        <bugTrackerUrl>http://fsprojects.github.com/Paket</bugTrackerUrl>
+        <bugTrackerUrl>http://github.com/fsprojects/Paket/issues</bugTrackerUrl>
         <title>Paket</title>
     </metadata>
     <files>
