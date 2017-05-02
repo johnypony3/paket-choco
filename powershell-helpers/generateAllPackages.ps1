@@ -1,6 +1,32 @@
+Import-Module -Name C:\projects\paket-choco\powershell-helpers\SemverSort
+
+$secPasswd = ConvertTo-SecureString $ENV:GITHUB_PASSWORD -AsPlainText -Force
+$credential = New-Object System.Management.Automation.PSCredential($ENV:GITHUB_USERNAME, $secpasswd)
+$paketInfosUrl = 'https://api.github.com/repos/fsprojects/Paket/releases'
 $paketRepo = 'https://api.github.com/repos/fsprojects/Paket'
-$paketInfos = Invoke-RestMethod -Uri 'https://api.github.com/repos/fsprojects/Paket/releases'
-$paketRepoInfo = Invoke-RestMethod -Uri $paketRepo
+
+Try {
+  $paketInfos = Invoke-RestMethod -Uri $paketInfosUrl -Credential $credential
+  $paketRepoInfo = Invoke-RestMethod -Uri $paketRepo -Credential $credential
+}
+Catch {
+  Write-Host 'error calling github'
+
+  $formatstring = "{0} : {1}`n{2}`n" +
+                  "    + CategoryInfo          : {3}`n"
+                  "    + FullyQualifiedErrorId : {4}`n"
+
+  $fields = $_.InvocationInfo.MyCommand.Name,
+            $_.ErrorDetails.Message,
+            $_.InvocationInfo.PositionMessage,
+            $_.CategoryInfo.ToString(),
+            $_.FullyQualifiedErrorId
+
+  Write-Host -Foreground Red -Background Black ($formatstring -f $fields)
+
+  Write-Host "exiting"
+  return 1
+}
 
 $packageOutputPath = Join-Path -Path $PSScriptRoot -ChildPath 'packages'
 mkdir $packageOutputPath
@@ -16,10 +42,44 @@ $verificationPath = Join-Path -Path $PSScriptRoot -ChildPath ..\tools\VERIFICATI
 
 $versionPath = Join-Path -Path $PSScriptRoot -ChildPath .version
 $assetPath = Join-Path -Path $PSScriptRoot -ChildPath payload
+$checksumType = "MD5"
 
 choco apiKey -k $ENV:CHOCO_KEY -source https://chocolatey.org/
 
-$push = false
+$push = $true
+$testVersion = toSemver("5.0.0-alpha007")
+
+function Match{
+  param (
+    $a,
+    $b,
+    $operation
+  )
+
+  $compareRes = $(compareSemVer $a $b)
+
+  $compareVal = switch ($operation)
+  {
+    'lower' {
+      $result = If ($compareRes -lt 0) {$true} else {$false}
+    }
+    'greater' {
+      $result = If ($compareRes -gt 0) {$true} else {$false}
+    }
+    default {
+      $result = If ($compareRes -eq 0) {$true} else {$false}
+    }
+  }
+
+  $aVer = $a.VersionString
+  $bVer = $b.VersionString
+
+  $opRes = If ($result) {$operation} else {"not $operation"}
+
+  Write-Host "version: $aVer is $opRes than/to $bVer"
+
+  return $result
+}
 
 function BuildInfoFileGenerator {
   param([string]$ogVersion)
@@ -67,79 +127,91 @@ function CheckIfUploadedToChoco {
 
   Try {
     $statusCode = wget $chocoUrl | % {$_.StatusCode}
-    Write-Host "$statusCode for $chocoUrl"
     if ($statusCode -eq '200') {
       return $true
     }
   } Catch {
-    Write-Host "$statusCode for $chocoUrl"
     return $false
   }
 }
 
+function GetHash{
+  param([string]$filePath)
+
+  $hash = Get-FileHash $filePath -Algorithm $checksumType
+  return $hash.Hash
+}
+
 $paketInfos | % {
-    $ogversion = $_.tag_name
-    $downloadUrl = $_.html_url
-
     $skip = $false
-    $skip = !$ogversion
+    $ogversion = $_.tag_name
 
-    $overrideExistingPackageCheck = $true
-
-    #$skip = $ogversion -notlike '*beta*'
-    $skip = $skip -or $ogversion -notlike '*4.0.7*'
+    $skip = [string]::IsNullOrEmpty($ogversion)
 
     if ($skip) {
-      Write-Host "skipping version:"$ogversion
-      return
+      Write-Host "skipping version: $ogversion because its empty."
+      return;
     }
 
-    $version = $ogversion# -replace '-', '.03032017-'
+    $downloadUrl = $_.html_url
+    $semVersion = toSemver $ogversion
+    $version = $semVersion.VersionString
+
+    $overrideExistingPackageCheck = $false
+
+    $skip = !(Match $semVersion $testVersion 'greater')
+
+    if ($skip) {
+      Write-Host "skipping version: $ogversion because of skip override"
+      return;
+    }
+
     Write-Host "working on version:"$version
 
     $packageName = "Paket.$version.nupkg"
     Write-Host $packageName
 
     $chocoUrl = "https://packages.chocolatey.org/$packageName"
-    Write-Host $chocoUrl
 
     if (CheckIfUploadedToChoco -chocoUrl $chocoUrl) {
       if (!($overrideExistingPackageCheck)){
-        Write-Host "package exists, skipping:"$packageName
+        Write-Host "package exists, skipping: $packageName"
         return;
       }
 
-      Write-Host "package exists, continuing:"$packageName
+      Write-Host "package exists, continuing: $packageName"
     } else {
-      Write-Host "package does not exist:"$packageName
+      Write-Host "package does not exist: $packageName"
     }
 
     Remove-Item "$packagePayloadPath/*" -recurse
     $repoInfo = $paketInfos | where { $_.tag_name -eq $ogversion }
 
+    Copy-Item $verificationTemplatePath $verificationPath
+
     $repoInfo.assets | % {
-        $fileNameFull = Join-Path -Path $packagePayloadPath -ChildPath $_.name
+        $fileName = $_.name
+        $fileNameFull = Join-Path -Path $packagePayloadPath -ChildPath $fileName
         Invoke-WebRequest -OutFile $fileNameFull -Uri $_.browser_download_url
-        Write-Host "  -> downloaded $_.name"
+        Write-Host "  -> downloaded $fileName"
+        $fileHash = GetHash $fileNameFull
+        $fileHashInfo = "`n`tfile: $fileName`n`tchecksum type: $checksumType`n`tchecksum: $fileHash"
+        Write-Host "  -> $fileHashInfo"
+        Add-Content $verificationPath $fileHashInfo
     }
+
+    Add-Content $verificationPath "`nThe download url for this packages release is <$downloadUrl>"
 
     [xml]$nuspec = Get-Content $nuspecTemplatePath
     $nuspec.package.metadata.id = 'paket'
     $nuspec.package.metadata.title = 'Paket'
     $nuspec.package.metadata.version = $version
-    $nuspec.package.metadata.authors = $paketRepoInfo.owner.login
     $nuspec.package.metadata.projectUrl = $paketRepoInfo.homepage
     $nuspec.package.metadata.description = $paketRepoInfo.description
     $nuspec.package.metadata.summary = $paketRepoInfo.description
     $nuspec.package.metadata.releaseNotes = $_.body
-    $nuspec.package.metadata.docsUrl = $paketRepo
-    $nuspec.package.metadata.mailingListUrl = $paketRepo
-    $nuspec.package.metadata.bugTrackerUrl = $paketRepo
-    $nuspec.package.metadata.packageSourceUrl = $paketRepo
     $nuspec.Save($nuspecPath)
 
-    Copy-Item $verificationTemplatePath $verificationPath
-    Add-Content $verificationPath "The download url for this packages release is <$downloadUrl>"
     BuildInfoFileGenerator $ogversion
 
     choco pack $nuspecPath --outputdirectory $packageOutputPath
