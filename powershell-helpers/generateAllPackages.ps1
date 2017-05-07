@@ -34,8 +34,8 @@ mkdir $packageOutputPath
 $packagePayloadPath = Join-Path -Path $PSScriptRoot -ChildPath '..\payload'
 mkdir $packagePayloadPath
 
-$nuspecTemplatePath = Join-Path -Path $PSScriptRoot -ChildPath paket.template.nuspec
-$verificationTemplatePath = Join-Path -Path $PSScriptRoot -ChildPath VERIFICATION.template.txt
+$nuspecTemplatePath = Join-Path -Path $PSScriptRoot -ChildPath '..\templates\paket.template.nuspec'
+$verificationTemplatePath = Join-Path -Path $PSScriptRoot -ChildPath '..\templates\VERIFICATION.template.txt'
 
 $nuspecPath = Join-Path -Path $PSScriptRoot -ChildPath paket.nuspec
 $verificationPath = Join-Path -Path $PSScriptRoot -ChildPath ..\tools\VERIFICATION.txt
@@ -46,8 +46,7 @@ $checksumType = "MD5"
 
 choco apiKey -k $ENV:CHOCO_KEY -source https://chocolatey.org/
 
-$push = $true
-$testVersion = toSemver("5.0.0-alpha007")
+$push = $false
 
 function Match{
   param (
@@ -159,10 +158,21 @@ $paketInfos | % {
 
     $overrideExistingPackageCheck = $false
 
-    $skip = !(Match $semVersion $testVersion 'greater')
+    If ([string]::IsNullOrEmpty($ENV:COMPARISON_VERSION)){
+      $testVersion = toSemver($ENV:COMPARISON_VERSION)
+    }
+
+    If ([string]::IsNullOrEmpty($ENV:OPERATION) -and !$testVersion){
+      $skip = !(Match $semVersion $testVersion $ENV:OPERATION)
+    }
+
+    If ([string]::IsNullOrEmpty($ENV:VERSION_LIST_TO_CREATE)){
+      $versions = $ENV:VERSION_LIST_TO_CREATE.Split(",").Trim() | Sort-Object $_
+      $skip = $versions -notcontains $version
+    }
 
     if ($skip) {
-      Write-Host "skipping version: $ogversion because of skip override"
+      Write-Host "skipping version: $version because of skip override"
       return;
     }
 
