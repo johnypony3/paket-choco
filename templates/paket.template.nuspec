@@ -4,6 +4,7 @@
         <id>paket</id>
         <version>3.36.0</version>
         <authors>Paket team</authors>
+        <owners>johnypony3</owners>
         <licenseUrl>http://fsprojects.github.io/Paket/license.html</licenseUrl>
         <projectUrl>http://fsprojects.github.com/Paket</projectUrl>
         <iconUrl>https://raw.githubusercontent.com/fsprojects/Paket/master/docs/files/img/logo.png</iconUrl>

@@ -121,6 +121,7 @@ function BuildInfoFileGenerator {
   $hash | ConvertTo-Json | Out-File $versionPath
 }
 
+
 function CheckIfUploadedToChoco {
   param([string]$chocoUrl)
 
@@ -158,15 +159,15 @@ $paketInfos | % {
 
     $overrideExistingPackageCheck = $false
 
-    If ([string]::IsNullOrEmpty($ENV:COMPARISON_VERSION)){
+    If (!([string]::IsNullOrEmpty($ENV:COMPARISON_VERSION))){
       $testVersion = toSemver($ENV:COMPARISON_VERSION)
     }
 
-    If ([string]::IsNullOrEmpty($ENV:OPERATION) -and !$testVersion){
+    If (!([string]::IsNullOrEmpty($ENV:OPERATION) -and !$testVersion)){
       $skip = !(Match $semVersion $testVersion $ENV:OPERATION)
     }
 
-    If ([string]::IsNullOrEmpty($ENV:VERSION_LIST_TO_CREATE)){
+    If (!([string]::IsNullOrEmpty($ENV:VERSION_LIST_TO_CREATE))){
       $versions = $ENV:VERSION_LIST_TO_CREATE.Split(",").Trim() | Sort-Object $_
       $skip = $versions -notcontains $version
     }
