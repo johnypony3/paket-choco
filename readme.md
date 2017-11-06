@@ -3,6 +3,7 @@
 # purpose:
 
 ## create chocolatey packages of the paket nuget manager
+## end result: https://chocolatey.org/packages/Paket
 
 # execution steps
 
