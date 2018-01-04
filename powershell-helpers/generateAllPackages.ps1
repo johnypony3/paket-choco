@@ -44,7 +44,7 @@ $versionPath = Join-Path -Path $PSScriptRoot -ChildPath .version
 $assetPath = Join-Path -Path $PSScriptRoot -ChildPath payload
 $checksumType = "MD5"
 
-choco apiKey -k $ENV:CHOCO_KEY -source https://chocolatey.org/
+choco apiKey -k $ENV:CHOCO_KEY -source https://push.chocolatey.org/
 
 $push = $true
 
