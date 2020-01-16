@@ -4,7 +4,7 @@ $secPasswd = ConvertTo-SecureString $ENV:GITHUB_PASSWORD -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential($ENV:GITHUB_USERNAME, $secpasswd)
 $paketInfosUrl = 'https://api.github.com/repos/fsprojects/Paket/releases'
 $paketRepo = 'https://api.github.com/repos/fsprojects/Paket'
-$packageAdditionalDescription = "`n`n## Package Additional Details `n* This package is designed to install globally for the machine, it does so by setting the PaketExePath environment variable. This will make the project level paket executables irrelevant"
+$packageAdditionalDescription = "`n`n## Package Additional Details `n* This package is designed to install globally for the machine, it does so by setting the PaketExePath environment variable. This will make the project level paket executables irrelevant."
 
 Try {
   $paketInfos = Invoke-RestMethod -Uri $paketInfosUrl -Credential $credential
