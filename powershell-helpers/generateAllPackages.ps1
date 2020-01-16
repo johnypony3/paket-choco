@@ -4,6 +4,7 @@ $secPasswd = ConvertTo-SecureString $ENV:GITHUB_PASSWORD -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential($ENV:GITHUB_USERNAME, $secpasswd)
 $paketInfosUrl = 'https://api.github.com/repos/fsprojects/Paket/releases'
 $paketRepo = 'https://api.github.com/repos/fsprojects/Paket'
+$packageAdditionalDescription = "`n`n## Package Additional Details `n* This package is designed to install globally for the machine, it does so by setting the PaketExePath environment variable. This will make the project level paket executables irrelevant"
 
 Try {
   $paketInfos = Invoke-RestMethod -Uri $paketInfosUrl -Credential $credential
@@ -218,8 +219,8 @@ $paketInfos | % {
     $nuspec.package.metadata.title = 'Paket'
     $nuspec.package.metadata.version = $version
     $nuspec.package.metadata.projectUrl = $paketRepoInfo.homepage
-    $nuspec.package.metadata.description = $paketRepoInfo.description
-    $nuspec.package.metadata.summary = $paketRepoInfo.description
+    $nuspec.package.metadata.description = $paketRepoInfo.description + $packageAdditionalDescription
+    $nuspec.package.metadata.summary = $paketRepoInfo.description + $packageAdditionalDescription
     $nuspec.package.metadata.releaseNotes = $_.body
     $nuspec.Save($nuspecPath)
 
