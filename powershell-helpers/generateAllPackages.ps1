@@ -8,7 +8,9 @@ $packageAdditionalDescription = "`n`n## Package Additional Details `n* This pack
 
 Try {
   $paketInfos = Invoke-RestMethod -Uri $paketInfosUrl -Credential $credential
+  Write-Host $paketInfos
   $paketRepoInfo = Invoke-RestMethod -Uri $paketRepo -Credential $credential
+  Write-Host $paketRepoInfo
 }
 Catch {
   Write-Host 'error calling github'
@@ -125,6 +127,9 @@ function BuildInfoFileGenerator {
 
 function CheckIfUploadedToChoco {
   param([string]$chocoUrl)
+  if ($overrideExistingPackageCheck) {
+    return $false
+  }
 
   Try {
     $statusCode = wget $chocoUrl | % {$_.StatusCode}
@@ -158,7 +163,7 @@ $paketInfos | % {
     $semVersion = toSemver $ogversion
     $version = $semVersion.VersionString
 
-    $overrideExistingPackageCheck = $false
+    $overrideExistingPackageCheck = $true
 
     If (!([string]::IsNullOrEmpty($ENV:COMPARISON_VERSION))){
       $testVersion = toSemver($ENV:COMPARISON_VERSION)
@@ -186,14 +191,15 @@ $paketInfos | % {
     $chocoUrl = "https://packages.chocolatey.org/$packageName"
 
     if (CheckIfUploadedToChoco -chocoUrl $chocoUrl) {
-      if (!($overrideExistingPackageCheck)){
-        Write-Host "package exists, skipping: $packageName"
-        return;
-      }
-
-      Write-Host "package exists, continuing: $packageName"
+      Write-Host "package exists, skipping: $packageName"
+      return;
     } else {
       Write-Host "package does not exist: $packageName"
+    }
+
+    if ($version -ne "5.258.0") {
+      Write-Host "checking for specific version, skipping"
+      return;
     }
 
     Remove-Item "$packagePayloadPath/*" -recurse
@@ -202,14 +208,14 @@ $paketInfos | % {
     Copy-Item $verificationTemplatePath $verificationPath
 
     $repoInfo.assets | % {
-        $fileName = $_.name
-        $fileNameFull = Join-Path -Path $packagePayloadPath -ChildPath $fileName
-        Invoke-WebRequest -OutFile $fileNameFull -Uri $_.browser_download_url
-        Write-Host "  -> downloaded $fileName"
-        $fileHash = GetHash $fileNameFull
-        $fileHashInfo = "`n`tfile: $fileName`n`tchecksum type: $checksumType`n`tchecksum: $fileHash"
-        Write-Host "  -> $fileHashInfo"
-        Add-Content $verificationPath $fileHashInfo
+      $fileName = $_.name
+      $fileNameFull = Join-Path -Path $packagePayloadPath -ChildPath $fileName
+      Invoke-WebRequest -OutFile $fileNameFull -Uri $_.browser_download_url
+      Write-Host "  -> downloaded $fileName"
+      $fileHash = GetHash $fileNameFull
+      $fileHashInfo = "`n`tfile: $fileName`n`tchecksum type: $checksumType`n`tchecksum: $fileHash"
+      Write-Host "  -> $fileHashInfo"
+      Add-Content $verificationPath $fileHashInfo
     }
 
     Add-Content $verificationPath "`nThe download url for this packages release is <$downloadUrl>"
@@ -219,13 +225,14 @@ $paketInfos | % {
     $nuspec.package.metadata.title = 'Paket'
     $nuspec.package.metadata.version = $version
     $nuspec.package.metadata.projectUrl = $paketRepoInfo.homepage
+    $nuspec.package.metadata.docsUrl = $paketRepoInfo.homepage
     $nuspec.package.metadata.description = $paketRepoInfo.description + $packageAdditionalDescription
     $nuspec.package.metadata.summary = $paketRepoInfo.description + $packageAdditionalDescription
     $nuspec.package.metadata.releaseNotes = $_.body
     $nuspec.Save($nuspecPath)
 
     BuildInfoFileGenerator $ogversion
-
+    Get-Content $nuspecPath
     choco pack $nuspecPath --outputdirectory $packageOutputPath
 }
 
