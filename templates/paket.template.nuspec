@@ -2,22 +2,20 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata>
     <id>paket</id>
-    <version>3.36.0</version>
+    <version></version>
     <authors>Paket team</authors>
     <owners>johnypony3</owners>
     <licenseUrl>http://fsprojects.github.io/Paket/license.html</licenseUrl>
-    <projectUrl>http://fsprojects.github.com/Paket</projectUrl>
+    <projectUrl></projectUrl>
     <iconUrl>https://raw.githubusercontent.com/fsprojects/Paket/master/docs/files/img/logo.png</iconUrl>
-    <description>A dependency manager for .NET with support for NuGet packages and git repositories.</description>
-    <summary>A dependency manager for .NET with support for NuGet packages and git repositories.</summary>
-    <releaseNotes>BUGFIX: Lower case group folder name - https://github.com/fsprojects/Paket/pull/2150 BUGFIX: Fix resolver for Strategy.Min - https://github.com/fsprojects/Paket/issues/2148 BUGFIX: Fix TFS-on-premise -
-      https://github.com/fsprojects/Paket/pull/2147 BUGFIX: Add a workaround for https://github.com/fsprojects/Paket/issues/2145 BUGFIX: Ignore unknown frameworks - https://github.com/fsprojects/Paket/pull/2132 COSMETICS: Do not spam "unlisted" -
-      https://github.com/fsprojects/Paket/issues/2149 USABILITY: Link to documentation on how to resolve a conflict - https://github.com/fsprojects/Paket/pull/2155</releaseNotes>
+    <description></description>
+    <summary></summary>
+    <releaseNotes></releaseNotes>
     <tags>nuget bundler F# admin</tags>
     <packageSourceUrl>https://github.com/johnypony3/paket-choco</packageSourceUrl>
     <docsUrl>https://fsprojects.github.io/Paket/</docsUrl>
     <bugTrackerUrl>http://github.com/fsprojects/Paket/issues</bugTrackerUrl>
-    <title>Paket</title>
+    <title></title>
   </metadata>
   <files>
     <file src="..\payload\**" target="payload"/>
