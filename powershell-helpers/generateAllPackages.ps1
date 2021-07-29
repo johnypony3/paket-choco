@@ -163,7 +163,7 @@ $paketInfos | % {
     $semVersion = toSemver $ogversion
     $version = $semVersion.VersionString
 
-    $overrideExistingPackageCheck = $true
+    $overrideExistingPackageCheck = $false
 
     If (!([string]::IsNullOrEmpty($ENV:COMPARISON_VERSION))){
       $testVersion = toSemver($ENV:COMPARISON_VERSION)
@@ -197,10 +197,10 @@ $paketInfos | % {
       Write-Host "package does not exist: $packageName"
     }
 
-    if ($version -ne "5.258.0") {
-      Write-Host "checking for specific version, skipping"
-      return;
-    }
+    #if ($version -ne "5.258.0") {
+    #  Write-Host "checking for specific version, skipping"
+    #  return;
+    #}
 
     Remove-Item "$packagePayloadPath/*" -recurse
     $repoInfo = $paketInfos | where { $_.tag_name -eq $ogversion }
