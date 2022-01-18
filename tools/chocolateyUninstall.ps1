@@ -1,3 +1,3 @@
 $ErrorActionPreference = 'Stop';
 
-Install-ChocolateyEnvironmentVariable -VariableName "PaketExePath" -VariableValue $null -VariableType Machine
+Uninstall-ChocolateyEnvironmentVariable -VariableName PaketExePath -VariableType Machine
