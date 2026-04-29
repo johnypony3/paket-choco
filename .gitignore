@@ -41,7 +41,11 @@
 ehthumbs.db
 Thumbs.db
 
-/packages
 /node_modules
+/powershell-helpers/output
+/powershell-helpers/*.nuspec
+/docs
+CLAUDE.md
+.claude/
 
 *.targets
