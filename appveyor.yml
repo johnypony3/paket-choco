@@ -1,6 +1,6 @@
 version: 1.0.{build}
 build_script:
-  - ps: 'powershell-helpers/generateAllPackages.ps1'
+  - ps: 'powershell-helpers/generate.ps1'
 
 artifacts:
   - path: '**\*.nupkg'
@@ -10,10 +10,3 @@ artifacts:
   - path: '**\.version'
     name: version
 
-notifications:
-  - provider: Slack
-    incoming_webhook: https://hooks.slack.com/services/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
-    channel: Build
-    on_build_success: true
-    on_build_failure: true
-    on_build_status_changed: false

@@ -1,0 +1,47 @@
+[
+  {
+    "packageId": "paket",
+    "githubOrg": "fsprojects",
+    "githubRepo": "Paket",
+    "checksumType": "MD5",
+    "versionFormat": "tag",
+    "assetFilter": ".*",
+    "assetRenames": {},
+    "projectUrl": "",
+    "additionalDescription": "\n\n## Package Additional Details \n* This package is designed to install globally for the machine, it does so by setting the PaketExePath environment variable. This will make the project level paket executables irrelevant.",
+    "title": "Paket",
+    "authors": "Paket team",
+    "owners": "johnypony3",
+    "licenseUrl": "http://fsprojects.github.io/Paket/license.html",
+    "iconUrl": "https://raw.githubusercontent.com/fsprojects/Paket/master/docs/files/img/logo.png",
+    "tags": "nuget bundler F# admin",
+    "packageSourceUrl": "https://github.com/johnypony3/paket-choco",
+    "docsUrl": "https://fsprojects.github.io/Paket/",
+    "bugTrackerUrl": "http://github.com/fsprojects/Paket/issues",
+    "verificationHeader": "VERIFICATION\nVerification is intended to assist the Chocolatey moderators and community\nin verifying that this package's contents are trustworthy.\n\nThe embedded software have been downloaded from the listed download\nlocation on <https://github.com/fsprojects/Paket/releases>\nand can be verified by doing the following:\n\n1. Packaged assets are downloaded from the github release url above, for the\n  specific release which matches the package version.\n2. Install/Uninstall scripts add/remove a machine level environment parameter\n  using chocolatey `Install-ChocolateyEnvironmentVariable` method.\n\nThe file 'LICENSE.txt' has been obtained from <https://raw.githubusercontent.com/fsprojects/Paket/master/LICENSE.txt>"
+  },
+  {
+    "packageId": "cloudbaseinit",
+    "githubOrg": "cloudbase",
+    "githubRepo": "cloudbase-init",
+    "checksumType": "SHA256",
+    "versionFormat": "tag.date",
+    "assetFilter": "\\.msi$",
+    "assetRenames": {
+      "x86": "CloudbaseInitSetup_x86.msi",
+      "x64": "CloudbaseInitSetup_x64.msi"
+    },
+    "projectUrl": "https://cloudbase.it/cloudbase-init/",
+    "additionalDescription": "\n\n## Package Additional Details \n* This package embeds the MSI installer downloaded from the official GitHub release.",
+    "title": "Cloudbase-Init (Install)",
+    "authors": "Cloudbase Solutions Srl",
+    "owners": "johnypony3",
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+    "iconUrl": "https://cloudbase.it/wp-content/uploads/2013/06/cloudbase_logo_site.png",
+    "tags": "cloudbaseinit cloud-init windows openstack",
+    "packageSourceUrl": "https://github.com/cloudbase/cloudbase-init",
+    "docsUrl": "https://cloudbase-init.readthedocs.io/en/latest/",
+    "bugTrackerUrl": "https://github.com/cloudbase/cloudbase-init/issues",
+    "verificationHeader": "VERIFICATION\nVerification is intended to assist the Chocolatey moderators and community\nin verifying that this package's contents are trustworthy.\n\nThe embedded software have been downloaded from the listed download\nlocation on <https://github.com/cloudbase/cloudbase-init/releases>\nand can be verified by doing the following:\n\n1. Packaged assets are downloaded from the github release url above, for the\n  specific release which matches the package version.\n2. Install/Uninstall scripts install/uninstall the MSI silently using\n  chocolatey `Install-ChocolateyInstallPackage` / `Uninstall-ChocolateyPackage` methods."
+  }
+]
