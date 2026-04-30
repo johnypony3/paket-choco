@@ -26,8 +26,35 @@ data "aws_ami" "windows_2019" {
   }
 }
 
-data "aws_vpc" "default" {
-  default = true
+resource "aws_vpc" "build" {
+  cidr_block = "10.0.0.0/16"
+  tags       = { Name = "paket-choco-build" }
+}
+
+resource "aws_subnet" "build" {
+  vpc_id                  = aws_vpc.build.id
+  cidr_block              = "10.0.1.0/24"
+  map_public_ip_on_launch = true
+  tags                    = { Name = "paket-choco-build" }
+}
+
+resource "aws_internet_gateway" "build" {
+  vpc_id = aws_vpc.build.id
+  tags   = { Name = "paket-choco-build" }
+}
+
+resource "aws_route_table" "build" {
+  vpc_id = aws_vpc.build.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.build.id
+  }
+  tags = { Name = "paket-choco-build" }
+}
+
+resource "aws_route_table_association" "build" {
+  subnet_id      = aws_subnet.build.id
+  route_table_id = aws_route_table.build.id
 }
 
 resource "aws_iam_role" "build" {
@@ -65,7 +92,7 @@ resource "aws_iam_instance_profile" "build" {
 resource "aws_security_group" "build" {
   name        = "paket-choco-build"
   description = "Outbound only for package build instance"
-  vpc_id      = data.aws_vpc.default.id
+  vpc_id      = aws_vpc.build.id
 
   egress {
     from_port   = 0
@@ -79,6 +106,7 @@ resource "aws_instance" "build" {
   ami                                  = data.aws_ami.windows_2019.id
   instance_type                        = "t3.medium"
   iam_instance_profile                 = aws_iam_instance_profile.build.name
+  subnet_id                            = aws_subnet.build.id
   vpc_security_group_ids               = [aws_security_group.build.id]
   instance_initiated_shutdown_behavior = "terminate"
 
