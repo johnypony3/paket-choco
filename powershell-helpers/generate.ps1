@@ -47,6 +47,8 @@ If (!([string]::IsNullOrEmpty($ENV:COMPARISON_VERSION))) {
   $testVersion = toSemver $ENV:COMPARISON_VERSION
 }
 
+$failedPackages = @()
+
 $packages = Get-Content $packagesJsonPath | ConvertFrom-Json
 
 foreach ($config in $packages) {
@@ -184,27 +186,30 @@ foreach ($config in $packages) {
     choco install $packageId --version $version --source $outputPath -y --no-progress
     if ($LASTEXITCODE -ne 0) {
       Write-Host "FAIL: install failed for $packageName (exit code: $LASTEXITCODE)"
-      exit 1
+      $script:failedPackages += $packageName
+      return
     }
 
     Write-Host "testing uninstall: $packageName"
     choco uninstall $packageId --version $version -y --no-progress
     if ($LASTEXITCODE -ne 0) {
       Write-Host "FAIL: uninstall failed for $packageName (exit code: $LASTEXITCODE)"
-      exit 1
+      $script:failedPackages += $packageName
+      return
     }
 
     Write-Host "test passed: $packageName"
+
+    if ($push) {
+      choco push (Join-Path $outputPath $packageName)
+    }
   }
 
   Remove-Item "$payloadPath\*" -Recurse -ErrorAction SilentlyContinue
 }
 
-if (!$push) {
-  Write-Host "not pushing any packages"
-  return 0
-}
-
-Get-ChildItem $outputPath -Filter *.nupkg | ForEach-Object {
-  choco push $_.FullName
+if ($failedPackages.Count -gt 0) {
+  Write-Host "the following packages failed testing:"
+  $failedPackages | ForEach-Object { Write-Host "  - $_" }
+  exit 1
 }
