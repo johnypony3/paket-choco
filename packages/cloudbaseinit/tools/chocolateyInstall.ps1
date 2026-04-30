@@ -8,7 +8,7 @@ $packageArgs = @{
   file          = "$packageDir\payload\CloudbaseInitSetup_x86.msi"
   file64        = "$packageDir\payload\CloudbaseInitSetup_x64.msi"
   softwareName  = 'cloudbase-init*'
-  silentArgs    = "/qn /norestart /l*v `"$($env:SystemDrive)\Logs\$($env:ChocolateyPackageName).$($env:ChocolateyPackageVersion).MsiInstall.log`" INJECTMETADATAPASSWORD=TRUE USERGROUPS=Administrators RUN_SERVICE_AS_LOCAL_SYSTEM=1"
+  silentArgs    = "/qn /norestart /l*v `"$($env:SystemDrive)\Logs\$($env:ChocolateyPackageName).$($env:ChocolateyPackageVersion).MsiInstall.log`""
   validExitCodes= @(0, 3010, 1641)
 }
 
