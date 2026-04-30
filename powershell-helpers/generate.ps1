@@ -1,4 +1,4 @@
-Import-Module -Name C:\projects\paket-choco\powershell-helpers\SemverSort
+Import-Module -Name "$PSScriptRoot\SemverSort"
 
 $secPasswd = ConvertTo-SecureString $ENV:GITHUB_PASSWORD -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential($ENV:GITHUB_USERNAME, $secpasswd)
@@ -32,10 +32,11 @@ function GetHash {
 }
 
 function CheckIfUploadedToChoco {
-  param([string]$chocoUrl)
+  param([string]$packageId, [string]$packageVersion)
   Try {
-    $statusCode = (wget $chocoUrl).StatusCode
-    return $statusCode -eq 200
+    $uri = "https://community.chocolatey.org/api/v2/Packages(Id='$packageId',Version='$packageVersion')"
+    $null = Invoke-WebRequest $uri -UseBasicParsing -ErrorAction Stop
+    return $true
   } Catch {
     return $false
   }
@@ -45,6 +46,8 @@ $testVersion = $null
 If (!([string]::IsNullOrEmpty($ENV:COMPARISON_VERSION))) {
   $testVersion = toSemver $ENV:COMPARISON_VERSION
 }
+
+$failedPackages = @()
 
 $packages = Get-Content $packagesJsonPath | ConvertFrom-Json
 
@@ -117,11 +120,14 @@ foreach ($config in $packages) {
     Write-Host "working on version: $version"
 
     $packageName = "$packageId.$version.nupkg"
-    $chocoUrl    = "https://packages.chocolatey.org/$packageName"
 
-    if (CheckIfUploadedToChoco -chocoUrl $chocoUrl) {
+    $forceReupload = $config.forceReuploadVersions -contains $version
+
+    if (!$forceReupload -and (CheckIfUploadedToChoco -packageId $packageId -packageVersion $version)) {
       Write-Host "package exists, skipping: $packageName"
       return
+    } elseif ($forceReupload) {
+      Write-Host "force reupload: $packageName"
     } else {
       Write-Host "package does not exist: $packageName"
     }
@@ -175,14 +181,35 @@ foreach ($config in $packages) {
 
     Get-Content $nuspecPath
     choco pack $nuspecPath --outputdirectory $outputPath
+
+    Write-Host "testing install: $packageName"
+    choco install $packageId --version $version --source $outputPath -y --no-progress
+    if ($LASTEXITCODE -ne 0) {
+      Write-Host "FAIL: install failed for $packageName (exit code: $LASTEXITCODE)"
+      $script:failedPackages += $packageName
+      return
+    }
+
+    Write-Host "testing uninstall: $packageName"
+    choco uninstall $packageId --version $version -y --no-progress
+    if ($LASTEXITCODE -ne 0) {
+      Write-Host "FAIL: uninstall failed for $packageName (exit code: $LASTEXITCODE)"
+      $script:failedPackages += $packageName
+      return
+    }
+
+    Write-Host "test passed: $packageName"
+
+    if ($push) {
+      choco push (Join-Path $outputPath $packageName)
+    }
   }
+
+  Remove-Item "$payloadPath\*" -Recurse -ErrorAction SilentlyContinue
 }
 
-if (!$push) {
-  Write-Host "not pushing any packages"
-  return 0
-}
-
-Get-ChildItem $outputPath -Filter *.nupkg | ForEach-Object {
-  choco push $_.FullName
+if ($failedPackages.Count -gt 0) {
+  Write-Host "the following packages failed testing:"
+  $failedPackages | ForEach-Object { Write-Host "  - $_" }
+  exit 1
 }
