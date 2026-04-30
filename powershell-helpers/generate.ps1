@@ -32,10 +32,11 @@ function GetHash {
 }
 
 function CheckIfUploadedToChoco {
-  param([string]$chocoUrl)
+  param([string]$packageId, [string]$packageVersion)
   Try {
-    $statusCode = (wget $chocoUrl).StatusCode
-    return $statusCode -eq 200
+    $uri = "https://community.chocolatey.org/api/v2/Packages(Id='$packageId',Version='$packageVersion')"
+    $null = Invoke-WebRequest $uri -UseBasicParsing -ErrorAction Stop
+    return $true
   } Catch {
     return $false
   }
@@ -117,9 +118,8 @@ foreach ($config in $packages) {
     Write-Host "working on version: $version"
 
     $packageName = "$packageId.$version.nupkg"
-    $chocoUrl    = "https://packages.chocolatey.org/$packageName"
 
-    if (CheckIfUploadedToChoco -chocoUrl $chocoUrl) {
+    if (CheckIfUploadedToChoco -packageId $packageId -packageVersion $version) {
       Write-Host "package exists, skipping: $packageName"
       return
     } else {
@@ -176,6 +176,8 @@ foreach ($config in $packages) {
     Get-Content $nuspecPath
     choco pack $nuspecPath --outputdirectory $outputPath
   }
+
+  Remove-Item "$payloadPath\*" -Recurse -ErrorAction SilentlyContinue
 }
 
 if (!$push) {
