@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.0"
+    }
   }
 }
 
@@ -89,10 +93,35 @@ resource "aws_iam_instance_profile" "build" {
   role = aws_iam_role.build.name
 }
 
+resource "random_password" "windows" {
+  length  = 16
+  special = false
+}
+
+resource "aws_ssm_parameter" "windows_password" {
+  name  = "/paket-choco/windows_password"
+  type  = "SecureString"
+  value = random_password.windows.result
+}
+
 resource "aws_security_group" "build" {
   name        = "paket-choco-build"
-  description = "Outbound only for package build instance"
+  description = "WinRM and outbound for package build instance"
   vpc_id      = aws_vpc.build.id
+
+  ingress {
+    from_port   = 3389
+    to_port     = 3389
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 5985
+    to_port     = 5986
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   egress {
     from_port   = 0
@@ -103,12 +132,13 @@ resource "aws_security_group" "build" {
 }
 
 resource "aws_instance" "build" {
-  ami                                  = data.aws_ami.windows_2019.id
-  instance_type                        = "t3.medium"
-  iam_instance_profile                 = aws_iam_instance_profile.build.name
-  subnet_id                            = aws_subnet.build.id
-  vpc_security_group_ids               = [aws_security_group.build.id]
-  instance_initiated_shutdown_behavior = "terminate"
+  ami                    = data.aws_ami.windows_2019.id
+  instance_type          = "t3.medium"
+  iam_instance_profile   = aws_iam_instance_profile.build.name
+  subnet_id              = aws_subnet.build.id
+  vpc_security_group_ids = [aws_security_group.build.id]
+
+  depends_on = [aws_ssm_parameter.windows_password]
 
   user_data = templatefile("${path.module}/userdata.ps1", {
     branch = var.branch
