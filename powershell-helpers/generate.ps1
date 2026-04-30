@@ -1,4 +1,4 @@
-Import-Module -Name C:\projects\paket-choco\powershell-helpers\SemverSort
+Import-Module -Name "$PSScriptRoot\SemverSort"
 
 $secPasswd = ConvertTo-SecureString $ENV:GITHUB_PASSWORD -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential($ENV:GITHUB_USERNAME, $secpasswd)
