@@ -175,6 +175,22 @@ foreach ($config in $packages) {
 
     Get-Content $nuspecPath
     choco pack $nuspecPath --outputdirectory $outputPath
+
+    Write-Host "testing install: $packageName"
+    choco install $packageId --version $version --source $outputPath -y --no-progress
+    if ($LASTEXITCODE -ne 0) {
+      Write-Host "FAIL: install failed for $packageName (exit code: $LASTEXITCODE)"
+      exit 1
+    }
+
+    Write-Host "testing uninstall: $packageName"
+    choco uninstall $packageId --version $version -y --no-progress
+    if ($LASTEXITCODE -ne 0) {
+      Write-Host "FAIL: uninstall failed for $packageName (exit code: $LASTEXITCODE)"
+      exit 1
+    }
+
+    Write-Host "test passed: $packageName"
   }
 
   Remove-Item "$payloadPath\*" -Recurse -ErrorAction SilentlyContinue
