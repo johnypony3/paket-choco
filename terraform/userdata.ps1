@@ -10,10 +10,9 @@ $env:PATH = [System.Environment]::GetEnvironmentVariable('PATH', 'Machine')
 
 git clone --branch ${branch} https://github.com/johnypony3/paket-choco.git C:\paket-choco
 
-$env:GITHUB_USERNAME      = "${github_username}"
-$env:GITHUB_PASSWORD      = "${github_password}"
-$env:CHOCO_KEY            = "${choco_key}"
-$env:APPVEYOR_REPO_BRANCH = "main"
+$env:GITHUB_USERNAME = "${github_username}"
+$env:GITHUB_PASSWORD = "${github_password}"
+$env:CHOCO_KEY       = "${choco_key}"
 
 & C:\paket-choco\powershell-helpers\generate.ps1
 
