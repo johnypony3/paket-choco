@@ -1,4 +1,9 @@
 version: 1.0.{build}
+
+branches:
+  only:
+    - main
+
 build_script:
   - ps: 'powershell-helpers/generate.ps1'
 
