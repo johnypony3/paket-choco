@@ -7,6 +7,12 @@ $packageArgs = @{
   validExitCodes= @(0, 3010, 1605, 1614, 1641)
 }
 
+$svc = Get-Service -Name 'cloudbase-init' -ErrorAction SilentlyContinue
+if ($svc -and $svc.Status -ne 'Stopped') {
+  Stop-Service -Name 'cloudbase-init' -Force -ErrorAction SilentlyContinue
+  $svc.WaitForStatus('Stopped', [TimeSpan]::FromMinutes(2))
+}
+
 $uninstalled = $false
 [array]$key = Get-UninstallRegistryKey -SoftwareName $packageArgs['softwareName']
 
