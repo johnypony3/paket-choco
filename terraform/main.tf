@@ -141,7 +141,8 @@ resource "aws_instance" "build" {
   depends_on = [aws_ssm_parameter.windows_password]
 
   user_data = templatefile("${path.module}/userdata.ps1", {
-    branch = var.branch
+    branch           = var.branch
+    windows_password = random_password.windows.result
   })
 
   tags = {

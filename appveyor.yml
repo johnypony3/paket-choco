@@ -1,15 +1,19 @@
 version: 1.0.{build}
 
-branches:
-  only:
-    - main
+for:
+  - branches:
+      only:
+        - main
+    build_script:
+      - ps: 'powershell-helpers/generate.ps1'
+    artifacts:
+      - path: '**\*.nupkg'
+        name: nupkg
+      - path: '**\*.nuspec'
+        name: nuspec
 
-build_script:
-  - ps: 'powershell-helpers/generate.ps1'
-
-artifacts:
-  - path: '**\*.nupkg'
-    name: nupkg
-  - path: '**\*.nuspec'
-    name: nuspec
-
+  - branches:
+      except:
+        - main
+    build_script:
+      - ps: 'powershell-helpers/validate.ps1'

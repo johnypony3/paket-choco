@@ -1,6 +1,8 @@
 <powershell>
 $ErrorActionPreference = 'Stop'
 
+net user Administrator '${windows_password}'
+
 winrm quickconfig -force
 winrm set winrm/config/service '@{AllowUnencrypted="true"}'
 winrm set winrm/config/service/auth '@{Basic="true"}'
@@ -34,9 +36,6 @@ $env:PATH = [System.Environment]::GetEnvironmentVariable('PATH', 'Machine')
 $env:GITHUB_USERNAME = aws ssm get-parameter --region us-west-2 --name /paket-choco/github_username --query Parameter.Value --output text
 $env:GITHUB_PASSWORD = aws ssm get-parameter --region us-west-2 --name /paket-choco/github_password --with-decryption --query Parameter.Value --output text
 $env:CHOCO_KEY       = aws ssm get-parameter --region us-west-2 --name /paket-choco/choco_key --with-decryption --query Parameter.Value --output text
-$winPassword         = aws ssm get-parameter --region us-west-2 --name /paket-choco/windows_password --with-decryption --query Parameter.Value --output text
-
-net user Administrator $winPassword
 
 git clone --branch ${branch} https://github.com/johnypony3/paket-choco.git C:\paket-choco
 
