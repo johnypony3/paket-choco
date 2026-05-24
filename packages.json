@@ -33,7 +33,7 @@
     },
     "projectUrl": "https://cloudbase.it/cloudbase-init/",
     "additionalDescription": "\n\n## Package Additional Details \n* This package embeds the MSI installer downloaded from the official GitHub release.",
-    "title": "Cloudbase-Init (Install)",
+    "title": "Cloudbase-Init",
     "authors": "Cloudbase Solutions Srl",
     "owners": "johnypony3",
     "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
@@ -42,6 +42,15 @@
     "packageSourceUrl": "https://github.com/cloudbase/cloudbase-init",
     "docsUrl": "https://cloudbase-init.readthedocs.io/en/latest/",
     "bugTrackerUrl": "https://github.com/cloudbase/cloudbase-init/issues",
-    "verificationHeader": "VERIFICATION\nVerification is intended to assist the Chocolatey moderators and community\nin verifying that this package's contents are trustworthy.\n\nThe embedded software have been downloaded from the listed download\nlocation on <https://github.com/cloudbase/cloudbase-init/releases>\nand can be verified by doing the following:\n\n1. Packaged assets are downloaded from the github release url above, for the\n  specific release which matches the package version.\n2. Install/Uninstall scripts install/uninstall the MSI silently using\n  chocolatey `Install-ChocolateyInstallPackage` / `Uninstall-ChocolateyPackage` methods."
+    "verificationHeader": "VERIFICATION\nVerification is intended to assist the Chocolatey moderators and community\nin verifying that this package's contents are trustworthy.\n\nThe embedded software have been downloaded from the listed download\nlocation on <https://github.com/cloudbase/cloudbase-init/releases>\nand can be verified by doing the following:\n\n1. Packaged assets are downloaded from the github release url above, for the\n  specific release which matches the package version.\n2. Install/Uninstall scripts install/uninstall the MSI silently using\n  chocolatey `Install-ChocolateyInstallPackage` / `Uninstall-ChocolateyPackage` methods.",
+    "forceReuploadVersions": [
+      "1.1.8.20260417",
+      "1.1.7.20260416",
+      "1.1.6.20240807",
+      "1.1.4.20230215",
+      "1.1.2.20200622",
+      "1.1.1.20200418",
+      "1.1.0.20200226"
+    ]
   }
 ]

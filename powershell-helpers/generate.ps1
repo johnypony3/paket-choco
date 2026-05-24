@@ -121,12 +121,16 @@ foreach ($config in $packages) {
 
     $packageName = "$packageId.$version.nupkg"
 
-    if (CheckIfUploadedToChoco -packageId $packageId -packageVersion $version) {
+    $forceReupload = $config.forceReuploadVersions -contains $version
+
+    if (!$forceReupload -and (CheckIfUploadedToChoco -packageId $packageId -packageVersion $version)) {
       Write-Host "package exists, skipping: $packageName"
       return
+    } elseif ($forceReupload) {
+      Write-Host "force reupload: $packageName"
+    } else {
+      Write-Host "package does not exist: $packageName"
     }
-
-    Write-Host "package does not exist: $packageName"
 
     Remove-Item "$payloadPath\*" -Recurse -ErrorAction SilentlyContinue
 
