@@ -121,13 +121,9 @@ foreach ($config in $packages) {
 
     $packageName = "$packageId.$version.nupkg"
 
-    $forceReupload = $config.forceReuploadVersions -contains $version
-
-    if (!$forceReupload -and (CheckIfUploadedToChoco -packageId $packageId -packageVersion $version)) {
+    if (CheckIfUploadedToChoco -packageId $packageId -packageVersion $version) {
       Write-Host "package exists, skipping: $packageName"
       return
-    } elseif ($forceReupload) {
-      Write-Host "force reupload: $packageName"
     } else {
       Write-Host "package does not exist: $packageName"
     }
@@ -182,7 +178,6 @@ foreach ($config in $packages) {
     Get-Content $nuspecPath
     choco pack $nuspecPath --outputdirectory $outputPath
 
-    <#
     Write-Host "testing install: $packageName"
     choco install $packageId --version $version --source $outputPath -y --no-progress
     if ($LASTEXITCODE -ne 0) {
@@ -200,7 +195,6 @@ foreach ($config in $packages) {
     }
 
     Write-Host "test passed: $packageName"
-    #>
 
     if ($push) {
       choco push (Join-Path $outputPath $packageName)
